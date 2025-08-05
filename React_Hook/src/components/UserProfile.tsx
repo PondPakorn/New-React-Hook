@@ -1,4 +1,3 @@
-// UserProfile.tsx
 import { useEffect, useState } from "react";
 import {
   Box,
@@ -8,9 +7,9 @@ import {
   Grid,
   CircularProgress,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useParams, useNavigate } from "react-router-dom";
 import type { User } from "../types/User";
+import BackButton from "./BackButton";
 
 const UserProfile = () => {
   const { userId } = useParams();
@@ -37,8 +36,7 @@ const UserProfile = () => {
   return (
     <Box sx={{ bgcolor: "#121212", color: "#ff0f", minHeight: "100vh", p: 4 }}>
       <IconButton onClick={() => navigate(-1)} sx={{ color: "white", mb: 3 }}>
-        <ArrowBackIcon />
-        <Typography ml={1}>Back</Typography>
+        <BackButton />
       </IconButton>
 
       <Paper

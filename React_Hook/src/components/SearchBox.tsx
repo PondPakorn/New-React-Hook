@@ -14,7 +14,7 @@ const SearchList = ({ value, onChange }: Props) => {
         placeholder="Username, Name, Email"
         variant="outlined"
         sx={{
-            width: "100%",
+          width: "100%",
           maxWidth: "350px",
           input: { color: "#fff" },
           fieldset: { borderColor: "#444" },

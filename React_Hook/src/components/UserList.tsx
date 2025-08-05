@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import type { User } from "../types/User";
-import SearchBox from "./SearchBox"; 
+import SearchBox from "./SearchBox";
 import { useNavigate } from "react-router-dom";
 
 const UserList = () => {
@@ -30,7 +30,7 @@ const UserList = () => {
       .includes(search.toLowerCase())
   );
 
-  
+
 
   return (
     <Box sx={{ bgcolor: "#121212", minHeight: "100vh", color: "#fff", p: 4 }}>
