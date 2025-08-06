@@ -3,17 +3,15 @@ import {
   Box,
   Typography,
   Paper,
-  IconButton,
   Grid,
   CircularProgress,
 } from "@mui/material";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import type { User } from "../types/User";
 import BackButton from "./BackButton";
 
 const UserProfile = () => {
   const { userId } = useParams();
-  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -35,9 +33,10 @@ const UserProfile = () => {
 
   return (
     <Box sx={{ bgcolor: "#121212", color: "#ff0f", minHeight: "100vh", p: 4 }}>
-      <IconButton onClick={() => navigate(-1)} sx={{ color: "white", mb: 3 }}>
+      {/* <IconButton onClick={() => navigate(-1)} sx={{ color: "white", mb: 3 }}>
         <BackButton />
-      </IconButton>
+      </IconButton> */}
+      <BackButton />
 
       <Paper
         sx={{
