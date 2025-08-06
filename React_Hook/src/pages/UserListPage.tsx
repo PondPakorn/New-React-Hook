@@ -19,7 +19,7 @@ const UserListPage = () => {
         const adjustedLocalUsers = localUsers.map((user, index) => ({
           ...user,
           id: lastApiId + index + 1,
-          
+
         }));
 
         setUsers([...apiUsers, ...adjustedLocalUsers]);
@@ -31,7 +31,20 @@ const UserListPage = () => {
     fetchData();
   }, []);
 
-  
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.clear(); // หรือลบ key เฉพาะ เช่น localStorage.removeItem("users");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+
+
 
   return <UserList users={users} />;
 };

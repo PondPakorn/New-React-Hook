@@ -85,55 +85,50 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
   };
 
   const handleSubmit = async () => {
-    const newErrors = validate();
-    setErrors(newErrors);
+  const newErrors = validate();
+  setErrors(newErrors);
 
-    if (Object.keys(newErrors).length > 0) return;
+  if (Object.keys(newErrors).length > 0) return;
 
-    try {
-      // อ่าน users จาก localStorage
-      const localUsers: User[] = JSON.parse(localStorage.getItem("users") || "[]");
-
-      // รวมกับ existingUsers (API + local)
-      const allUsers = [...existingUsers, ...localUsers];
-      const lastId = allUsers.length > 0 ? Math.max(...allUsers.map((u) => u.id)) : 10;
-
-      const newUser: User = {
-        id: lastId + 1,
-        username: form.username,
-        name: form.name,
-        email: form.email,
-        address: {
-          street: form.street,
-          suite: form.suite,
-          city: form.city,
-          zipcode: form.zipcode,
-        },
-        phone: form.phone,
-        website: form.website,
-        company: {
-          name: form.company,
-        },
-      };
-
-      console.log("New user created with ID:", newUser);
-
-      // บันทึก user ลง localStorage
-      const updatedUsers = [...localUsers, newUser];
-      localStorage.setItem("users", JSON.stringify(updatedUsers));
-
-      // แจ้ง parent component ถ้าต้องการ
-      onAddUser(newUser);
-
-      // ไปหน้าโปรไฟล์ของ user ใหม่
-      navigate("/");
-    } catch (error) {
-      console.error("Error creating user", error);
-      alert("Something went wrong.");
-    }
-
-    console.log("Form submitted:", form);
+  const newUser: User = {
+    id: Date.now(), // หรือคุณจะไม่ส่ง id แล้วให้ backend สร้างให้ก็ได้
+    username: form.username,
+    name: form.name,
+    email: form.email,
+    address: {
+      street: form.street,
+      suite: form.suite,
+      city: form.city,
+      zipcode: form.zipcode,
+    },
+    phone: form.phone,
+    website: form.website,
+    company: {
+      name: form.company,
+    },
   };
+
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newUser),
+    });
+
+    const result = await response.json();
+    console.log("POST result:", result);
+
+    onAddUser(result); // หรือใช้ newUser ก็ได้ถ้าไม่รอ response จริง
+    navigate("/");
+  } catch (error) {
+    console.error("Error submitting user:", error);
+    alert("Failed to add user");
+  }
+  console.log("Form submitted:", newUser);
+};
+
 
   return (
     <Box sx={{ bgcolor: "#121212", minHeight: "100vh", py: 6, px: 2 }}>
