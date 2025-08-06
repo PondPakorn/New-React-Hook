@@ -31,6 +31,8 @@ const UserListPage = () => {
     fetchData();
   }, []);
 
+  
+
   return <UserList users={users} />;
 };
 

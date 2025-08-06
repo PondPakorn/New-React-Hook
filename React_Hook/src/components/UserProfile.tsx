@@ -9,32 +9,27 @@ const UserProfile = () => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
+  const fetchUser = async () => {
+    const localUsers = JSON.parse(localStorage.getItem("users") || "[]");
+    const foundUser = (localUsers as User[]).find((u: User) => u.id === Number(id));
+
+    if (foundUser) {
+      setUser(foundUser);
+    } else {
       try {
-        const localData = localStorage.getItem("users");
-        if (localData) {
-          const localUsers: User[] = JSON.parse(localData);
-          const foundUser = localUsers.find((u) => u.id === Number(id));
-          if (foundUser) {
-            setUser(foundUser);
-            return;
-          }
-        }
-
-        const response = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
-        if (!response.ok) {
-          throw new Error("User not found");
-        }
-
-        const data: User = await response.json();
-        setUser(data);
-      } catch (error) {
-        console.error("Error fetching user", error);
+        const res = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
+        if (!res.ok) throw new Error("User not found");
+        const apiUser = await res.json();
+        setUser(apiUser);
+      } catch (err) {
+        console.error("Error fetching user", err);
       }
-    };
+    }
+  };
 
-    fetchUser();
-  }, [id]);
+  fetchUser();
+}, [id]);
+
 
   if (!user) {
     return (

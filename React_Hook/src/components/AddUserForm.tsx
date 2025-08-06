@@ -39,7 +39,6 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
       [field]: value,
     }));
 
-    // เคลียร์ error เมื่อเริ่มพิมพ์
     setErrors((prev) => ({
       ...prev,
       [field]: "",
@@ -54,13 +53,12 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
     if (!form.email) newErrors.email = "Email is required";
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-if (form.email && !emailRegex.test(form.email)) {
-  newErrors.email = "Invalid email format";
-}
-
+    if (form.email && !emailRegex.test(form.email)) {
+      newErrors.email = "Invalid email format";
+    }
 
     const websiteRegex =
-  /^(https?:\/\/)?([\w-]+\.)+([a-zA-Z]{2,})(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/;
+      /^(https?:\/\/)?([\w-]+\.)+([a-zA-Z]{2,})(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/;
 
     if (form.website && !websiteRegex.test(form.website)) {
       newErrors.website = "Invalid website format";
@@ -81,10 +79,9 @@ if (form.email && !emailRegex.test(form.email)) {
     ) {
       newErrors.email = "Email already exists";
     }
+
     console.log("Validation result:", newErrors);
-
     return newErrors;
-
   };
 
   const handleSubmit = async () => {
@@ -94,9 +91,12 @@ if (form.email && !emailRegex.test(form.email)) {
     if (Object.keys(newErrors).length > 0) return;
 
     try {
-      const response = await fetch("https://jsonplaceholder.typicode.com/users");
-      const usersFromAPI: User[] = await response.json();
-      const lastId = Math.max(...usersFromAPI.map((user) => user.id));
+      // อ่าน users จาก localStorage
+      const localUsers: User[] = JSON.parse(localStorage.getItem("users") || "[]");
+
+      // รวมกับ existingUsers (API + local)
+      const allUsers = [...existingUsers, ...localUsers];
+      const lastId = allUsers.length > 0 ? Math.max(...allUsers.map((u) => u.id)) : 10;
 
       const newUser: User = {
         id: lastId + 1,
@@ -115,14 +115,23 @@ if (form.email && !emailRegex.test(form.email)) {
           name: form.company,
         },
       };
+
       console.log("New user created with ID:", newUser);
-      
+
+      // บันทึก user ลง localStorage
+      const updatedUsers = [...localUsers, newUser];
+      localStorage.setItem("users", JSON.stringify(updatedUsers));
+
+      // แจ้ง parent component ถ้าต้องการ
       onAddUser(newUser);
+
+      // ไปหน้าโปรไฟล์ของ user ใหม่
       navigate("/");
     } catch (error) {
-      console.error("Error fetching users from API", error);
-      alert("Error fetching users. Please try again.");
+      console.error("Error creating user", error);
+      alert("Something went wrong.");
     }
+
     console.log("Form submitted:", form);
   };
 
