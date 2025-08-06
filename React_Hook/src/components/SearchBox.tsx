@@ -2,15 +2,15 @@ import { TextField, Box } from "@mui/material";
 
 interface Props {
   value: string;
-  onChange: (value: string) => void;
+  handleSearch: (value: string) => void;
 }
 
-const SearchList = ({ value, onChange }: Props) => {
+const SearchList = ({ value, handleSearch }: Props) => {
   return (
     <Box display="flex" justifyContent="flex-end" mb={4} sx={{ width: "100%" }}>
       <TextField
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => handleSearch(e.target.value)}
         placeholder="Username, Name, Email"
         variant="outlined"
         sx={{

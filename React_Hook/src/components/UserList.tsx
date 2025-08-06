@@ -42,7 +42,7 @@ const UserList = ({ users }: Props) => {
           UserList
         </Typography>
 
-        <SearchBox value={search} onChange={setSearch} />
+        <SearchBox value={search} handleSearch={setSearch} />
 
         <Button
           variant="outlined"
