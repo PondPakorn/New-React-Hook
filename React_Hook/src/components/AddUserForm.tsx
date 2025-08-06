@@ -115,7 +115,8 @@ if (form.email && !emailRegex.test(form.email)) {
           name: form.company,
         },
       };
-
+      console.log("New user created with ID:", newUser);
+      
       onAddUser(newUser);
       navigate("/");
     } catch (error) {

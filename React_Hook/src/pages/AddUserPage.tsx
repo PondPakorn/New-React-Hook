@@ -1,4 +1,4 @@
-// AddUserPage.tsx
+// ✅ AddUserPage.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddUserForm from "../components/AddUserForm";
@@ -9,20 +9,38 @@ const AddUserPage = () => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
         const res = await fetch("https://jsonplaceholder.typicode.com/users");
-        const data = await res.json();
-        setUsers(data);
+        const apiUsers: User[] = await res.json();
+
+        const localData = localStorage.getItem("users");
+        const localUsers: User[] = localData ? JSON.parse(localData) : [];
+
+        const lastApiId = Math.max(...apiUsers.map((u) => u.id));
+        const adjustedLocalUsers = localUsers.map((user, index) => ({
+          ...user,
+          id: lastApiId + index + 1,
+        }));
+
+        setUsers([...apiUsers, ...adjustedLocalUsers]);
       } catch (error) {
-        console.error("Failed to fetch users", error);
+        console.error("Error loading users", error);
       }
     };
-    fetchUsers();
+
+    fetchData();
   }, []);
 
   const handleAddUser = (newUser: User) => {
-    setUsers((prev) => [...prev, newUser]);
+    const lastId = Math.max(...users.map((u) => u.id));
+    const userWithId = { ...newUser, id: lastId + 1 };
+
+    const localData = localStorage.getItem("users");
+    const localUsers: User[] = localData ? JSON.parse(localData) : [];
+    const updatedLocal = [...localUsers, userWithId];
+
+    localStorage.setItem("users", JSON.stringify(updatedLocal));
     navigate("/");
   };
 

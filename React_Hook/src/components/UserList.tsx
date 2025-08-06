@@ -1,5 +1,5 @@
 // UserList.tsx
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Typography,
@@ -14,16 +14,14 @@ import type { User } from "../types/User";
 import SearchBox from "./SearchBox";
 import { useNavigate } from "react-router-dom";
 
-const UserList = () => {
-  const [users, setUsers] = useState<User[]>([]);
+
+interface Props {
+  users: User[];
+}
+
+const UserList = ({ users }: Props) => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((res) => res.json())
-      .then(setUsers);
-  }, []);
 
   const filtered = users.filter((user) =>
     `${user.name}${user.username}${user.email}`
@@ -31,11 +29,8 @@ const UserList = () => {
       .includes(search.toLowerCase())
   );
 
-
-
   return (
     <Box sx={{ bgcolor: "#121212", minHeight: "100vh", color: "#fff", p: 4 }}>
-
       <Stack
         direction="row"
         alignItems="center"
@@ -53,7 +48,11 @@ const UserList = () => {
           variant="outlined"
           color="primary"
           onClick={() => navigate("/add")}
-          sx={{ color: "white", borderColor: "white", "&:hover": { borderColor: "#aaa" } }}
+          sx={{
+            color: "white",
+            borderColor: "white",
+            "&:hover": { borderColor: "#aaa" },
+          }}
         >
           Add new User
         </Button>
@@ -74,6 +73,7 @@ const UserList = () => {
               cursor: "pointer",
               "&:hover": { bgcolor: "#2a2a2a" },
             }}
+            
           >
             <Box width="100%" height={70} display="flex">
               <Grid container spacing={4} alignItems="center" width="120%">

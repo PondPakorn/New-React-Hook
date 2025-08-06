@@ -1,9 +1,37 @@
-
+// ✅ UserListPage.tsx
+import { useEffect, useState } from "react";
 import UserList from "../components/UserList";
+import type { User } from "../types/User";
 
 const UserListPage = () => {
-  return <UserList />;
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("https://jsonplaceholder.typicode.com/users");
+        const apiUsers: User[] = await res.json();
+
+        const localData = localStorage.getItem("users");
+        const localUsers: User[] = localData ? JSON.parse(localData) : [];
+
+        const lastApiId = Math.max(...apiUsers.map((u) => u.id));
+        const adjustedLocalUsers = localUsers.map((user, index) => ({
+          ...user,
+          id: lastApiId + index + 1,
+          
+        }));
+
+        setUsers([...apiUsers, ...adjustedLocalUsers]);
+      } catch (error) {
+        console.error("Error loading users", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return <UserList users={users} />;
 };
 
 export default UserListPage;
-

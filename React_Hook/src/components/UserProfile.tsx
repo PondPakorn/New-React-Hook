@@ -1,86 +1,77 @@
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
-  CircularProgress,
-} from "@mui/material";
 import { useParams } from "react-router-dom";
+import { Typography, Box, Paper } from "@mui/material";
 import type { User } from "../types/User";
 import BackButton from "./BackButton";
 
 const UserProfile = () => {
-  const { userId } = useParams();
+  const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    if (userId) {
-      fetch(`https://jsonplaceholder.typicode.com/users/${userId}`)
-        .then((res) => res.json())
-        .then(setUser);
-    }
-  }, [userId]);
+    const fetchUser = async () => {
+      try {
+        const localData = localStorage.getItem("users");
+        if (localData) {
+          const localUsers: User[] = JSON.parse(localData);
+          const foundUser = localUsers.find((u) => u.id === Number(id));
+          if (foundUser) {
+            setUser(foundUser);
+            return;
+          }
+        }
+
+        const response = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
+        if (!response.ok) {
+          throw new Error("User not found");
+        }
+
+        const data: User = await response.json();
+        setUser(data);
+      } catch (error) {
+        console.error("Error fetching user", error);
+      }
+    };
+
+    fetchUser();
+  }, [id]);
 
   if (!user) {
     return (
-      <Box sx={{ p: 4, color: "white" }}>
-        <CircularProgress />
-        <Typography mt={2}>Loading user...</Typography>
+      <Box sx={{ color: "white", p: 4 }}>
+        <Typography variant="h6">User not found</Typography>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ bgcolor: "#121212", color: "#ff0f", minHeight: "100vh", p: 4 }}>
-      {/* <IconButton onClick={() => navigate(-1)} sx={{ color: "white", mb: 3 }}>
-        <BackButton />
-      </IconButton> */}
+    <Box sx={{ bgcolor: "#121212", minHeight: "100vh", py: 6, px: 2 }}>
       <BackButton />
-
       <Paper
         sx={{
-          bgcolor: "#1e1e1e",
-          border: "1px solid #444",
-          p: 4,
-          maxWidth: "700px",
+          maxWidth: 600,
           mx: "auto",
+          p: 4,
+          bgcolor: "#1e1e1e",
           color: "white",
+          borderRadius: 3,
         }}
+        elevation={3}
       >
-        <Typography variant="h5" mb={3} fontWeight="bold" textAlign="center">
+        <Typography variant="h5" mb={3} textAlign="center">
           User Profile
         </Typography>
 
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Typography><strong>Username:</strong> {user.username}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography><strong>Email:</strong> {user.email}</Typography>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <Typography><strong>Name:</strong> {user.name}</Typography>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Typography>
-              <strong>Address :</strong> {user.address.street}, {user.address.suite}, {user.address.city}, {user.address.zipcode}
-            </Typography>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <Typography><strong>Phone:</strong> {user.phone}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography><strong>Website:</strong> {user.website}</Typography>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Typography><strong>Company:</strong> {user.company.name}</Typography>
-          </Grid>
-        </Grid>
+        <Typography>Name: {user.name}</Typography>
+        <Typography>Username: {user.username}</Typography>
+        <Typography>Email: {user.email}</Typography>
+        <Typography>Phone: {user.phone}</Typography>
+        <Typography>Website: {user.website}</Typography>
+        <Typography>Street: {user.address?.street || "N/A"}</Typography>
+        <Typography>Suite: {user.address?.suite || "N/A"}</Typography>
+        <Typography>City: {user.address?.city || "N/A"}</Typography>
+        <Typography>Zipcode: {user.address?.zipcode || "N/A"}</Typography>
+        <Typography>Company: {user.company?.name || "N/A"}</Typography>
       </Paper>
     </Box>
   );
