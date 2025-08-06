@@ -10,7 +10,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import type { User } from "../types/User";
 
-
 interface Props {
   existingUsers: User[];
   onAddUser: (user: User) => void;
@@ -34,90 +33,97 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (field: string, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    // เคลียร์ error เมื่อเริ่มพิมพ์
+    setErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
   };
 
   const validate = () => {
-  const errors: { [key: string]: string } = {};
+    const newErrors: { [key: string]: string } = {};
 
-  if (!form.username) errors.username = "Username is required";
-  if (!form.name) errors.name = "Name is required";
-  if (!form.email) errors.email = "Email is required";
+    if (!form.username) newErrors.username = "Username is required";
+    if (!form.name) newErrors.name = "Name is required";
+    if (!form.email) newErrors.email = "Email is required";
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (form.email && !emailRegex.test(form.email)) {
-    errors.email = "Invalid email format";
-  }
-
-  const websiteRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/;
-  if (form.website && !websiteRegex.test(form.website)) {
-    errors.website = "Invalid website format";
-  }
-
-  if (
-    existingUsers.some(
-      (u) => u.username.toLowerCase() === form.username.toLowerCase()
-    )
-  ) {
-    errors.username = "Username already exists";
-  }
-
-  if (
-    existingUsers.some(
-      (u) => u.email.toLowerCase() === form.email.toLowerCase()
-    )
-  ) {
-    errors.email = "Email already exists";
-  }
-
-  return errors; // ✅ return object
-};
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+if (form.email && !emailRegex.test(form.email)) {
+  newErrors.email = "Invalid email format";
+}
 
 
+    const websiteRegex =
+  /^(https?:\/\/)?([\w-]+\.)+([a-zA-Z]{2,})(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/;
+
+    if (form.website && !websiteRegex.test(form.website)) {
+      newErrors.website = "Invalid website format";
+    }
+
+    if (
+      existingUsers.some(
+        (u) => u.username.toLowerCase() === form.username.toLowerCase()
+      )
+    ) {
+      newErrors.username = "Username already exists";
+    }
+
+    if (
+      existingUsers.some(
+        (u) => u.email.toLowerCase() === form.email.toLowerCase()
+      )
+    ) {
+      newErrors.email = "Email already exists";
+    }
+    console.log("Validation result:", newErrors);
+
+    return newErrors;
+
+  };
 
   const handleSubmit = async () => {
-  const newErrors = validate(); // ✅ รับ object
-  if (Object.keys(newErrors).length > 0) {
+    const newErrors = validate();
     setErrors(newErrors);
-    return;
-  }
 
-  try {
-    const response = await fetch("https://jsonplaceholder.typicode.com/users");
-    const usersFromAPI: User[] = await response.json();
-    const lastId = Math.max(...usersFromAPI.map(user => user.id));
+    if (Object.keys(newErrors).length > 0) return;
 
-    const newUser: User = {
-      id: lastId + 1,
-      username: form.username,
-      name: form.name,
-      email: form.email,
-      address: {
-        street: form.street,
-        suite: form.suite,
-        city: form.city,
-        zipcode: form.zipcode,
-      },
-      phone: form.phone,
-      website: form.website,
-      company: {
-        name: form.company,
-      }
-    };
+    try {
+      const response = await fetch("https://jsonplaceholder.typicode.com/users");
+      const usersFromAPI: User[] = await response.json();
+      const lastId = Math.max(...usersFromAPI.map((user) => user.id));
 
-    console.log("New user added:", newUser); // ✅ log ข้อมูล
-    onAddUser(newUser);
-    navigate("/");
+      const newUser: User = {
+        id: lastId + 1,
+        username: form.username,
+        name: form.name,
+        email: form.email,
+        address: {
+          street: form.street,
+          suite: form.suite,
+          city: form.city,
+          zipcode: form.zipcode,
+        },
+        phone: form.phone,
+        website: form.website,
+        company: {
+          name: form.company,
+        },
+      };
 
-  } catch (error) {
-    console.error("Error fetching users from API", error);
-    alert("Error fetching users. Please try again.");
-  }
-};
-
-
-
+      onAddUser(newUser);
+      navigate("/");
+    } catch (error) {
+      console.error("Error fetching users from API", error);
+      alert("Error fetching users. Please try again.");
+    }
+    console.log("Form submitted:", form);
+  };
 
   return (
     <Box sx={{ bgcolor: "#121212", minHeight: "100vh", py: 6, px: 2 }}>
@@ -155,7 +161,7 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
                 label={label}
                 name={name}
                 value={form[name as keyof typeof form]}
-                onChange={handleChange}
+                onChange={(e) => handleChange(name, e.target.value)}
                 error={!!errors[name]}
                 helperText={errors[name]}
                 variant="outlined"
