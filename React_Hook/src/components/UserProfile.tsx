@@ -1,7 +1,8 @@
 // src/components/UserProfile.tsx
-import { Typography, Paper } from "@mui/material";
+import { Typography, Paper, Grid } from "@mui/material";
 import type { User } from "../types/User";
 import { Box } from "@mui/system";
+import BackButton from "./BackButton";
 
 interface Props {
   user: User;
@@ -33,10 +34,12 @@ const UserProfile = ({ user }: Props) => {
       }}
       elevation={3}
     >
+      <Grid >
+      <BackButton />
       <Typography variant="h5" mb={3} textAlign="center">
         User Profile
       </Typography>
-
+      </Grid>
       <Box display="flex" justifyContent="space-between" flexWrap="wrap" rowGap={2}>
         {fields.map(({ label, value }, idx) => (
           <Typography

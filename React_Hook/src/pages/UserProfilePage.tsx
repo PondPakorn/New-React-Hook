@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import type { User } from "../types/User";
 import UserProfile from "../components/UserProfile";
-import BackButton from "../components/BackButton";
 
 const UserProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,7 +33,6 @@ const UserProfilePage = () => {
 
   return (
     <Box sx={{ bgcolor: "#121212", minHeight: "100vh", py: 6, px: 2 }}>
-      <BackButton />
       {user ? (
         <UserProfile user={user} />
       ) : (
