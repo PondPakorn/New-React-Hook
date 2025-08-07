@@ -73,7 +73,7 @@ const UserList = ({ users }: Props) => {
               cursor: "pointer",
               "&:hover": { bgcolor: "#2a2a2a" },
             }}
-            
+
           >
             <Box width="100%" height={70} display="flex">
               <Grid container spacing={4} alignItems="center" width="120%">

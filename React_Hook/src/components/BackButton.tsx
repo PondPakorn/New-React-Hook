@@ -7,7 +7,7 @@ const BackButton = () => {
 
   return (
     <Button
-      onClick={() => navigate(-1)}
+      onClick={() => navigate("/")}
       startIcon={<ArrowBackIcon />}
       sx={{ color: "white", mb: 3 }}
     >
