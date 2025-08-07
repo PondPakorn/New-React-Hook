@@ -5,7 +5,7 @@ interface Props {
   handleSearch: (value: string) => void;
 }
 
-const SearchList = ({ value, handleSearch }: Props) => {
+const SearchBox = ({ value, handleSearch }: Props) => {
   return (
     <Box display="flex" justifyContent="flex-end" mb={4} sx={{ width: "100%" }}>
       <TextField
@@ -28,4 +28,4 @@ const SearchList = ({ value, handleSearch }: Props) => {
   );
 };
 
-export default SearchList;
+export default SearchBox;

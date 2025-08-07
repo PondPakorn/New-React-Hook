@@ -8,6 +8,19 @@ interface Props {
 }
 
 const UserProfile = ({ user }: Props) => {
+  const fields = [
+    { label: "Username", value: user.username },
+    { label: "Name", value: user.name },
+    { label: "Email", value: user.email },
+    {
+      label: "Address",
+      value: `${user.address?.street || "N/A"}, ${user.address?.suite || "N/A"}, ${user.address?.city || "N/A"}, ${user.address?.zipcode || "N/A"}`,
+    },
+    { label: "Phone", value: user.phone },
+    { label: "Website", value: user.website },
+    { label: "Company", value: user.company?.name },
+  ];
+
   return (
     <Paper
       sx={{
@@ -25,24 +38,16 @@ const UserProfile = ({ user }: Props) => {
       </Typography>
 
       <Box display="flex" justifyContent="space-between" flexWrap="wrap" rowGap={2}>
-        <Typography width="100%">Username: {user.username}</Typography>
-
-
-        <Typography width="48%">Name: {user.name}</Typography>
-        <Typography width="48%">Email: {user.email}</Typography>
-
-        <Typography width="100%">
-          Address : {user.address?.street || "N/A"}, {user.address?.suite || "N/A"},{" "}
-          {user.address?.city || "N/A"}, {user.address?.zipcode || "N/A"}
-        </Typography>
-
-        <Typography width="48%">Phone: {user.phone}</Typography>
-        <Typography width="48%">Website: {user.website}</Typography>
-
-        <Typography width="100%">Company: {user.company?.name || "N/A"}</Typography>
+        {fields.map(({ label, value }, idx) => (
+          <Typography
+            key={idx}
+            width={["Username", "Address", "Company"].includes(label) ? "100%" : "48%"}
+          >
+            {label}: {value || "N/A"}
+          </Typography>
+        ))}
       </Box>
     </Paper>
-
   );
 };
 
