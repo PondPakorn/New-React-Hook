@@ -35,10 +35,10 @@ const UserProfile = ({ user }: Props) => {
       elevation={3}
     >
       <Grid >
-      <BackButton />
-      <Typography variant="h5" mb={3} textAlign="center">
-        User Profile
-      </Typography>
+        <BackButton />
+        <Typography variant="h5" mb={3} textAlign="center">
+          User Profile
+        </Typography>
       </Grid>
       <Box display="flex" justifyContent="space-between" flexWrap="wrap" rowGap={2}>
         {fields.map(({ label, value }, idx) => (

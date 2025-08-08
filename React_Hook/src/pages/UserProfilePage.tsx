@@ -32,7 +32,7 @@ const UserProfilePage = () => {
   }, [id]);
 
   return (
-    <Box sx={{ bgcolor: "#121212", minHeight: "100vh", py: 6, px: 2 }}>
+    <Box sx={{ bgcolor: "#121212", minHeight: "90vh", py: 6, px: 2 }}>
       {user ? (
         <UserProfile user={user} />
       ) : (
