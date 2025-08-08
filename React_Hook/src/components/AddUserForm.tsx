@@ -121,108 +121,108 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
   };
 
   return (
-  <Box sx={{ bgcolor: "#121212", minHeight: "100vh", py: 6, px: 2 }}>
-    <Paper
-      sx={{
-        maxWidth: 800,
-        mx: "auto",
-        p: 4,
-        bgcolor: "#1e1e1e",
-        color: "white",
-        borderRadius: 3,
-      }}
-      elevation={3}
-    >
-      <Typography variant="h5" mb={3} textAlign="center">
-        Add New User
-      </Typography>
+    <Box sx={{ bgcolor: "#121212", minHeight: "100vh", py: 6, px: 2 }}>
+      <Paper
+        sx={{
+          maxWidth: 800,
+          mx: "auto",
+          p: 4,
+          bgcolor: "#1e1e1e",
+          color: "white",
+          borderRadius: 3,
+        }}
+        elevation={3}
+      >
+        <Typography variant="h5" mb={3} textAlign="center">
+          Add New User
+        </Typography>
 
-      <Grid container spacing={2}>
-        {/* Username - Full width */}
-        <Grid item xs={12}>
-          <Typography sx={{ mb: 1 }}>Username:</Typography>
-          <TextField
-            fullWidth
-            name="username"
-            value={form.username}
-            onChange={(e) => handleChange('username', e.target.value)}
-            error={!!errors.username}
-            helperText={errors.username}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                color: "white",
-                width: "49%",
-                "& fieldset": { borderColor: "#666" },
-                "&:hover fieldset": { borderColor: "#888" },
-              },
-            }}
-          />
-        </Grid>
-
-        {/* Other fields - 50% width each */}
-        {[
-          ["Name", "name"],
-          ["Email", "email"],
-          ["Street", "street"],
-          ["Suite", "suite"],
-          ["City", "city"],
-          ["Zip Code", "zipcode"],
-          ["Phone", "phone"],
-          ["Website", "website"],
-        ].map(([label, name]) => (
-          <Grid item xs={6} key={name}>
-            <Typography sx={{ mb: 1 }}>{label}:</Typography>
+        <Grid container spacing={2}>
+          {/* Username - Full width */}
+          <Grid item xs={12}>
+            <Typography sx={{ mb: 1 }}>Username:</Typography>
             <TextField
               fullWidth
-              name={name}
-              value={form[name as keyof typeof form]}
-              onChange={(e) => handleChange(name, e.target.value)}
-              error={!!errors[name]}
-              helperText={errors[name]}
+              name="username"
+              value={form.username}
+              onChange={(e) => handleChange('username', e.target.value)}
+              error={!!errors.username}
+              helperText={errors.username}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   color: "white",
+                  width: "49%",
                   "& fieldset": { borderColor: "#666" },
                   "&:hover fieldset": { borderColor: "#888" },
                 },
               }}
             />
           </Grid>
-        ))}
 
-        {/* Company - Full width */}
-        <Grid item xs={12}>
-          <Typography sx={{ mb: 1 }}>Company:</Typography>
-          <TextField
-            fullWidth
-            name="company"
-            value={form.company}
-            onChange={(e) => handleChange('company', e.target.value)}
-            error={!!errors.company}
-            helperText={errors.company}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                color: "white",
-                width: "49%",
-                "& fieldset": { borderColor: "#666" },
-                "&:hover fieldset": { borderColor: "#888" },
-              },
-            }}
-          />
+          {/* Other fields - 50% width each */}
+          {[
+            ["Name", "name"],
+            ["Email", "email"],
+            ["Street", "street"],
+            ["Suite", "suite"],
+            ["City", "city"],
+            ["Zip Code", "zipcode"],
+            ["Phone", "phone"],
+            ["Website", "website"],
+          ].map(([label, name]) => (
+            <Grid item xs={6} key={name}>
+              <Typography sx={{ mb: 1 }}>{label}:</Typography>
+              <TextField
+                fullWidth
+                name={name}
+                value={form[name as keyof typeof form]}
+                onChange={(e) => handleChange(name, e.target.value)}
+                error={!!errors[name]}
+                helperText={errors[name]}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    color: "white",
+                    "& fieldset": { borderColor: "#666" },
+                    "&:hover fieldset": { borderColor: "#888" },
+                  },
+                }}
+              />
+            </Grid>
+          ))}
+
+          {/* Company - Full width */}
+          <Grid item xs={12}>
+            <Typography sx={{ mb: 1 }}>Company:</Typography>
+            <TextField
+              fullWidth
+              name="company"
+              value={form.company}
+              onChange={(e) => handleChange('company', e.target.value)}
+              error={!!errors.company}
+              helperText={errors.company}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  width: "49%",
+                  "& fieldset": { borderColor: "#666" },
+                  "&:hover fieldset": { borderColor: "#888" },
+                },
+              }}
+            />
+          </Grid>
         </Grid>
-      </Grid>
 
-      <Box mt={4} display="flex" justifyContent="flex-end" gap={2}>
-        <Button variant="outlined" color="secondary" onClick={() => navigate("/")}>
-          Cancel
-        </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Save
-        </Button>
-      </Box>
-    </Paper>
-  </Box>
-);
+        <Box mt={4} display="flex" justifyContent="flex-end" gap={2}>
+          <Button variant="outlined" color="secondary" onClick={() => navigate("/")}>
+            Cancel
+          </Button>
+          <Button variant="contained" color="primary" onClick={handleSubmit}>
+            Save
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
+  );
 };
 
 export default AddUserForm;
