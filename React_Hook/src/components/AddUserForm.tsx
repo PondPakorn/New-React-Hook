@@ -84,7 +84,7 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
       newErrors.email = "Email already exists";
     }
 
-    // ---- Validate Website (optional) ----
+    // ---- Validate Website ----
     if (form.website && !websiteRegex.test(form.website.trim())) {
       newErrors.website = "Invalid website format";
     }
@@ -116,7 +116,7 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
       },
     };
 
-    console.log("📦 Submitting new user (no id):", newUser);
+    console.log("📦 Submitting new user:", newUser);
     onAddUser(newUser);
   };
 
@@ -138,7 +138,6 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
         </Typography>
 
         <Grid container spacing={2}>
-          {/* Username - Full width */}
           <Grid item xs={12}>
             <Typography sx={{ mb: 1 }}>Username:</Typography>
             <TextField
@@ -159,7 +158,6 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
             />
           </Grid>
 
-          {/* Other fields - 50% width each */}
           {[
             ["Name", "name"],
             ["Email", "email"],
@@ -190,7 +188,6 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
             </Grid>
           ))}
 
-          {/* Company - Full width */}
           <Grid item xs={12}>
             <Typography sx={{ mb: 1 }}>Company:</Typography>
             <TextField
