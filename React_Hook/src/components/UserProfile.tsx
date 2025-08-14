@@ -1,6 +1,5 @@
-import { Typography, Paper, Grid } from "@mui/material";
+import { Typography, Paper, Grid, Box } from "@mui/material";
 import type { User } from "../types/User";
-import { Box } from "@mui/system";
 interface Props {
   user: User;
 }

@@ -36,7 +36,7 @@ const AddUserPage = () => {
     const userWithId: User = { ...newUser, id: newId };
     const updatedLocalUsers = [...localUsers, userWithId];
 
-    console.log("✅ New ID Assigned:", newId);
+    console.log("New ID Assigned:", newId);
 
     localStorage.setItem("users", JSON.stringify(updatedLocalUsers));
     setUsers(prev => [...prev, userWithId]);

@@ -84,7 +84,7 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
       newErrors.email = "Email already exists";
     }
 
-    // ---- Validate Website ----
+    // ---- Validate Address ----
     if (form.website && !websiteRegex.test(form.website.trim())) {
       newErrors.website = "Invalid website format";
     }

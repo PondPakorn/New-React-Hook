@@ -1,4 +1,3 @@
-// src/pages/UserProfilePage.tsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";

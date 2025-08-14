@@ -1,4 +1,3 @@
-// ✅ UserListPage.tsx
 import { useEffect, useState } from "react";
 import UserList from "../components/UserList";
 import type { User } from "../types/User";
@@ -47,7 +46,8 @@ const UserListPage = () => {
     };
 
     const handleBeforeUnload = () => {
-      localStorage.clear(); // หรือ localStorage.removeItem("users");
+      localStorage.clear(); 
+      // หรือ localStorage.removeItem("users");
     };
 
     fetchData();
