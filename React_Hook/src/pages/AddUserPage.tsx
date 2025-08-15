@@ -39,7 +39,6 @@ const AddUserPage = () => {
     console.log("New ID Assigned:", newId);
 
     localStorage.setItem("users", JSON.stringify(updatedLocalUsers));
-    setUsers(prev => [...prev, userWithId]);
     navigate("/");
   };
 

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box,
   Typography,
@@ -6,11 +5,9 @@ import {
   IconButton,
   Stack,
   Grid,
-  Button,
 } from "@mui/material";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import type { User } from "../types/User";
-import SearchBox from "./SearchBox";
 import { useNavigate } from "react-router-dom";
 
 
@@ -19,46 +16,14 @@ interface Props {
 }
 
 const UserList = ({ users }: Props) => {
-  const [search, setSearch] = useState("");
   const navigate = useNavigate();
-
-  const filtered = users.filter((user) =>
-    `${user.name}${user.username}${user.email}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
 
   return (
     <Box sx={{ bgcolor: "#121212", minHeight: "100vh", color: "#fff", p: 4 }}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        spacing={2}
-        mb={4}
-      >
-        <Typography variant="h4" mb={4} fontWeight="bold">
-          UserList
-        </Typography>
-
-        <SearchBox value={search} handleSearch={setSearch} />
-
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => navigate("/add")}
-          sx={{
-            color: "white",
-            borderColor: "white",
-            "&:hover": { borderColor: "#aaa" },
-          }}
-        >
-          Add new User
-        </Button>
-      </Stack>
+      
 
       <Stack spacing={2}>
-        {filtered.map((user) => (
+        {users.map((user) => (
           <Paper
             key={user.id}
             onClick={() => navigate(`/user/${user.id}`)}

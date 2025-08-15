@@ -49,14 +49,20 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
     const newErrors: { [key: string]: string } = {};
 
     const isEmpty = (value: string | undefined | null) => !value?.trim();
+    const allowedTLDs = [
+      "com", "org", "net", "gov", "edu", "info", "biz",
+      "co.th", "ac.th", "or.th", "go.th", "th"
+    ];
 
+
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-    const websiteRegex = /^(https?:\/\/)?([\w-]+\.)+[a-zA-Z]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/;
+    const websiteRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/;
 
-    // ---- Validate Username ----
+    // ---- Username (required, format, duplicate) ----
     if (isEmpty(form.username)) {
       newErrors.username = "Username is required";
-    } else if (!/^[a-zA-Z0-9_]+$/.test(form.username)) {
+    } else if (!usernameRegex.test(form.username)) {
       newErrors.username = "Username can only contain letters, numbers, and underscores";
     } else if (
       existingUsers.some(
@@ -66,12 +72,12 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
       newErrors.username = "Username already exists";
     }
 
-    // ---- Validate Name ----
+    // ---- Name (required) ----
     if (isEmpty(form.name)) {
       newErrors.name = "Name is required";
     }
 
-    // ---- Validate Email ----
+    // ---- Email (required, format, duplicate) ----
     if (isEmpty(form.email)) {
       newErrors.email = "Email is required";
     } else if (!emailRegex.test(form.email.trim())) {
@@ -84,14 +90,20 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
       newErrors.email = "Email already exists";
     }
 
-    // ---- Validate Address ----
-    if (form.website && !websiteRegex.test(form.website.trim())) {
-      newErrors.website = "Invalid website format";
+    // ---- Website (optional, format) ----
+    if (!isEmpty(form.website)) {
+      if (!websiteRegex.test(form.website.trim())) {
+        newErrors.website = "Invalid website format";
+      } else {
+        const lowerWebsite = form.website.trim().toLowerCase();
+        const hasValidTLD = allowedTLDs.some(tld => lowerWebsite.endsWith(`.${tld}`));
+        if (!hasValidTLD) {
+          newErrors.website = "Invalid website format";
+        }
+      }
     }
-
     return newErrors;
   };
-
 
   const handleSubmit = () => {
     const newErrors = validate();
@@ -116,7 +128,7 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
       },
     };
 
-    console.log("📦 Submitting new user:", newUser);
+    console.log("Submitting new user:", newUser);
     onAddUser(newUser);
   };
 

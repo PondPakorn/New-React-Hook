@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import UserList from "../components/UserList";
 import type { User } from "../types/User";
-import { Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
+import SearchBox from "../components/SearchBox";
+import { useNavigate } from "react-router-dom";
+
 
 const UserListPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,13 +36,7 @@ const UserListPage = () => {
           console.error("Failed to parse local users", e);
         }
 
-        const lastApiId = Math.max(...apiUsers.map((u) => u.id));
-        const adjustedLocalUsers = localUsers.map((user, index) => ({
-          ...user,
-          id: lastApiId + index + 1,
-        }));
-
-        setUsers([...apiUsers, ...adjustedLocalUsers]);
+        setUsers([...apiUsers, ...localUsers]);
       } catch (err) {
         setError("Failed to load users");
         console.error(err);
@@ -46,7 +46,7 @@ const UserListPage = () => {
     };
 
     const handleBeforeUnload = () => {
-      localStorage.clear(); 
+      localStorage.clear();
       // หรือ localStorage.removeItem("users");
     };
 
@@ -58,6 +58,11 @@ const UserListPage = () => {
     };
   }, []);
 
+  const filteredUsers = users.filter((user) =>
+    `${user.name}${user.username}${user.email}`
+      .toLowerCase().includes(search.toLowerCase())
+  );
+
   if (loading) {
     return <Typography color="white" p={4}>Loading...</Typography>;
   }
@@ -66,8 +71,39 @@ const UserListPage = () => {
     return <Typography color="error" p={4}>{error}</Typography>;
   }
 
-  return <UserList users={users} />;
+  return (
+    <Box sx={{ bgcolor: "#121212", minHeight: "100vh", p: 4 }}>
+      {/* กล่อง Search + Button */}
+      <Box
+        display="flex"
+        justifyContent="flex-end"
+        gap={2}
+        mb={4}
+        sx={{
+          width: "96%",
+          margin: "auto",  // ให้อยู่กึ่งกลางของหน้าจอ
+        }}
+      >
+        
+        <SearchBox value={search} handleSearch={setSearch} />
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => navigate("/add")}
+          sx={{
+            height: "56px", // ให้สูงเท่ากับ SearchBox
+            color: "white",
+            borderColor: "white",
+            "&:hover": { borderColor: "#aaa" },
+          }}
+        >
+          Add new user
+        </Button>
+      </Box>
+      <UserList users={filteredUsers} />
+    </Box>
+  );
+}
 
-};
 
 export default UserListPage;
