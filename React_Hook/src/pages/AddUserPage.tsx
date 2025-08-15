@@ -1,4 +1,3 @@
-// ✅ AddUserPage.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddUserForm from "../components/AddUserForm";
@@ -9,38 +8,37 @@ const AddUserPage = () => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUsers = async () => {
       try {
-        const res = await fetch("https://jsonplaceholder.typicode.com/users");
-        const apiUsers: User[] = await res.json();
+        const apiRes = await fetch("https://jsonplaceholder.typicode.com/users");
+        const apiData: User[] = await apiRes.json();
 
         const localData = localStorage.getItem("users");
         const localUsers: User[] = localData ? JSON.parse(localData) : [];
 
-        const lastApiId = Math.max(...apiUsers.map((u) => u.id));
-        const adjustedLocalUsers = localUsers.map((user, index) => ({
-          ...user,
-          id: lastApiId + index + 1,
-        }));
-
-        setUsers([...apiUsers, ...adjustedLocalUsers]);
+        const combined = [...apiData, ...localUsers];
+        setUsers(combined);
       } catch (error) {
-        console.error("Error loading users", error);
+        console.error("Failed to fetch users", error);
       }
     };
-
-    fetchData();
+    fetchUsers();
   }, []);
 
-  const handleAddUser = (newUser: User) => {
-    const lastId = Math.max(...users.map((u) => u.id));
-    const userWithId = { ...newUser, id: lastId + 1 };
-
+  const handleAddUser = (newUser: Omit<User, "id">) => {
     const localData = localStorage.getItem("users");
     const localUsers: User[] = localData ? JSON.parse(localData) : [];
-    const updatedLocal = [...localUsers, userWithId];
 
-    localStorage.setItem("users", JSON.stringify(updatedLocal));
+    const allUsers: User[] = [...users, ...localUsers];
+    const maxId = allUsers.reduce((max, user) => Math.max(max, user.id), 0);
+    const newId = maxId + 1;
+
+    const userWithId: User = { ...newUser, id: newId };
+    const updatedLocalUsers = [...localUsers, userWithId];
+
+    console.log("New ID Assigned:", newId);
+
+    localStorage.setItem("users", JSON.stringify(updatedLocalUsers));
     navigate("/");
   };
 

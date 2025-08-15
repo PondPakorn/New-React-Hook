@@ -1,199 +1,155 @@
 import { useState } from "react";
 import {
-  TextField,
-  Grid,
-  Button,
-  Typography,
-  Box,
-  Paper,
+  TextField, Grid, Button, Typography, Box, Paper
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import type { User } from "../types/User";
+import React from "react";
 
 interface Props {
   existingUsers: User[];
-  onAddUser: (user: User) => void;
+  onAddUser: (user: Omit<User, "id">) => void;
 }
+
+const allowedTLDs = [
+  "com", "org", "net", "gov", "edu", "info", "biz",
+  "co.th", "ac.th", "or.th", "go.th", "th"
+];
+
+const regex = {
+  username: /^[a-zA-Z0-9_]+$/,
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i,
+  website: /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/
+};
+
+const requiredFields = ["username", "name", "email"];
 
 const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
   const navigate = useNavigate();
-
   const [form, setForm] = useState({
-    username: "",
-    name: "",
-    email: "",
-    street: "",
-    suite: "",
-    city: "",
-    zipcode: "",
-    phone: "",
-    website: "",
-    company: "",
+    username: "", name: "", email: "",
+    street: "", suite: "", city: "", zipcode: "",
+    phone: "", website: "", company: ""
   });
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errors, setErrors] = useState<{ [k: string]: string }>({});
 
   const handleChange = (field: string, value: string) => {
-    setForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [field]: "",
-    }));
+    setForm(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: "" }));
   };
 
   const validate = () => {
-    const newErrors: { [key: string]: string } = {};
+    const newErrors: Record<string, string> = {};
+    const isEmpty = (v: string) => !v?.trim();
+    const lower = (v: string) => v.trim().toLowerCase();
 
-    if (!form.username) newErrors.username = "Username is required";
-    if (!form.name) newErrors.name = "Name is required";
-    if (!form.email) newErrors.email = "Email is required";
+    // Required check
+    requiredFields.forEach(f => {
+      if (isEmpty(form[f as keyof typeof form]))
+        newErrors[f] = `${f[0].toUpperCase() + f.slice(1)} is required`;
+    });
 
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (form.email && !emailRegex.test(form.email)) {
-      newErrors.email = "Invalid email format";
+    // Username format & duplicate
+    if (!isEmpty(form.username)) {
+      if (!regex.username.test(form.username))
+        newErrors.username = "Only letters, numbers, underscores allowed";
+      else if (existingUsers.some(u => lower(u.username) === lower(form.username)))
+        newErrors.username = "Username already exists";
     }
 
-    const websiteRegex =
-      /^(https?:\/\/)?([\w-]+\.)+([a-zA-Z]{2,})(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/;
-
-    if (form.website && !websiteRegex.test(form.website)) {
-      newErrors.website = "Invalid website format";
+    // Email format & duplicate
+    if (!isEmpty(form.email)) {
+      if (!regex.email.test(form.email))
+        newErrors.email = "Invalid email format";
+      else if (existingUsers.some(u => lower(u.email) === lower(form.email)))
+        newErrors.email = "Email already exists";
     }
 
-    if (
-      existingUsers.some(
-        (u) => u.username.toLowerCase() === form.username.toLowerCase()
-      )
-    ) {
-      newErrors.username = "Username already exists";
+    // Website format & TLD check
+    if (!isEmpty(form.website)) {
+      if (!regex.website.test(form.website))
+        newErrors.website = "Invalid website format";
+      else if (!allowedTLDs.some(tld => lower(form.website).endsWith(`.${tld}`)))
+        newErrors.website = "Invalid website format";
     }
 
-    if (
-      existingUsers.some(
-        (u) => u.email.toLowerCase() === form.email.toLowerCase()
-      )
-    ) {
-      newErrors.email = "Email already exists";
-    }
-
-    console.log("Validation result:", newErrors);
     return newErrors;
   };
 
-  const handleSubmit = async () => {
-  const newErrors = validate();
-  setErrors(newErrors);
+  const handleSubmit = () => {
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length) return;
 
-  if (Object.keys(newErrors).length > 0) return;
-
-  const newUser: User = {
-    id: Date.now(), // หรือคุณจะไม่ส่ง id แล้วให้ backend สร้างให้ก็ได้
-    username: form.username,
-    name: form.name,
-    email: form.email,
-    address: {
-      street: form.street,
-      suite: form.suite,
-      city: form.city,
-      zipcode: form.zipcode,
-    },
-    phone: form.phone,
-    website: form.website,
-    company: {
-      name: form.company,
-    },
+    onAddUser({
+      username: form.username,
+      name: form.name,
+      email: form.email,
+      address: {
+        street: form.street,
+        suite: form.suite,
+        city: form.city,
+        zipcode: form.zipcode,
+      },
+      phone: form.phone,
+      website: form.website,
+      company: { name: form.company }
+    });
   };
 
-  try {
-    const response = await fetch("https://jsonplaceholder.typicode.com/users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newUser),
-    });
+  const textFieldProps = (name: string) => ({
+    fullWidth: true,
+    name,
+    value: form[name as keyof typeof form],
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange(name, e.target.value),
+    error: !!errors[name],
+    helperText: errors[name],
+    sx: {
+      "& .MuiOutlinedInput-root": {
+        color: "white",
+        "& fieldset": { borderColor: "#666" },
+        "&:hover fieldset": { borderColor: "#888" },
+      }
+    }
+  });
 
-    const result = await response.json();
-    console.log("POST result:", result);
-
-    onAddUser(result); // หรือใช้ newUser ก็ได้ถ้าไม่รอ response จริง
-    navigate("/");
-  } catch (error) {
-    console.error("Error submitting user:", error);
-    alert("Failed to add user");
-  }
-  console.log("Form submitted:", newUser);
-};
-
+  const fields = [
+    ["Username", "username"],
+    ["Name", "name"],
+    ["Email", "email"],
+    ["Street", "street"],
+    ["Suite", "suite"],
+    ["City", "city"],
+    ["Zip Code", "zipcode"],
+    ["Phone", "phone"],
+    ["Website", "website"],
+    ["Company", "company"]
+  ];
 
   return (
     <Box sx={{ bgcolor: "#121212", minHeight: "100vh", py: 6, px: 2 }}>
-      <Paper
-        sx={{
-          maxWidth: 800,
-          mx: "auto",
-          p: 4,
-          bgcolor: "#1e1e1e",
-          color: "white",
-          borderRadius: 3,
-        }}
-        elevation={3}
-      >
-        <Typography variant="h5" mb={3} textAlign="center">
-          Add New User
-        </Typography>
+      <Paper sx={{ maxWidth: 800, mx: "auto", p: 4, bgcolor: "#1e1e1e", color: "white", borderRadius: 3 }} elevation={3}>
+        <Typography variant="h5" mb={3} textAlign="center">Add New User</Typography>
 
         <Grid container spacing={2}>
-          {[
-            ["Username", "username"],
-            ["Name", "name"],
-            ["Email", "email"],
-            ["Street", "street"],
-            ["Suite", "suite"],
-            ["City", "city"],
-            ["Zip Code", "zipcode"],
-            ["Phone", "phone"],
-            ["Website", "website"],
-            ["Company", "company"],
-          ].map(([label, name]) => (
-            <Grid item xs={12} sm={6} key={name}>
-              <TextField
-                fullWidth
-                label={label}
-                name={name}
-                value={form[name as keyof typeof form]}
-                onChange={(e) => handleChange(name, e.target.value)}
-                error={!!errors[name]}
-                helperText={errors[name]}
-                variant="outlined"
-                InputLabelProps={{ style: { color: "white" } }}
-                InputProps={{ style: { color: "white" } }}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#555",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#888",
-                    },
-                  },
-                }}
-              />
-            </Grid>
+          {fields.map(([label, name]) => (
+            <React.Fragment key={name}>
+              <Grid item xs={6}>
+                <Typography sx={{ mb: 1 }}>{label}:</Typography>
+                <TextField {...textFieldProps(name)} fullWidth />
+              </Grid>
+
+              {/* ถ้าเป็น username หรือ company ให้เติมช่องว่างอีก 1 */}
+              {(name === "username" || name === "company") && (
+                <Grid item xs={6} />
+              )}
+            </React.Fragment>
           ))}
         </Grid>
-
+        
         <Box mt={4} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="outlined" color="secondary" onClick={() => navigate("/")}>
-            Cancel
-          </Button>
-          <Button variant="contained" color="primary" onClick={handleSubmit}>
-            Save
-          </Button>
+          <Button variant="outlined" color="secondary" onClick={() => navigate("/")}>Cancel</Button>
+          <Button variant="contained" color="primary" onClick={handleSubmit}>Save</Button>
         </Box>
       </Paper>
     </Box>

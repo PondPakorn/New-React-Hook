@@ -1,4 +1,4 @@
-import { TextField, Box } from "@mui/material";
+import { TextField } from "@mui/material";
 
 interface Props {
   value: string;
@@ -7,7 +7,6 @@ interface Props {
 
 const SearchBox = ({ value, handleSearch }: Props) => {
   return (
-    <Box display="flex" justifyContent="flex-end" mb={4} sx={{ width: "100%" }}>
       <TextField
         value={value}
         onChange={(e) => handleSearch(e.target.value)}
@@ -24,7 +23,6 @@ const SearchBox = ({ value, handleSearch }: Props) => {
         }}
         InputLabelProps={{ style: { color: "#999" } }}
       />
-    </Box>
   );
 };
 
