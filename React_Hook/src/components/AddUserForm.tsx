@@ -1,117 +1,87 @@
 import { useState } from "react";
 import {
-  TextField,
-  Grid,
-  Button,
-  Typography,
-  Box,
-  Paper,
+  TextField, Grid, Button, Typography, Box, Paper
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import type { User } from "../types/User";
+import React from "react";
 
 interface Props {
   existingUsers: User[];
   onAddUser: (user: Omit<User, "id">) => void;
 }
 
+const allowedTLDs = [
+  "com", "org", "net", "gov", "edu", "info", "biz",
+  "co.th", "ac.th", "or.th", "go.th", "th"
+];
+
+const regex = {
+  username: /^[a-zA-Z0-9_]+$/,
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i,
+  website: /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/
+};
+
+const requiredFields = ["username", "name", "email"];
+
 const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
   const navigate = useNavigate();
-
   const [form, setForm] = useState({
-    username: "",
-    name: "",
-    email: "",
-    street: "",
-    suite: "",
-    city: "",
-    zipcode: "",
-    phone: "",
-    website: "",
-    company: "",
+    username: "", name: "", email: "",
+    street: "", suite: "", city: "", zipcode: "",
+    phone: "", website: "", company: ""
   });
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errors, setErrors] = useState<{ [k: string]: string }>({});
 
   const handleChange = (field: string, value: string) => {
-    setForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [field]: "",
-    }));
+    setForm(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: "" }));
   };
 
   const validate = () => {
-    const newErrors: { [key: string]: string } = {};
+    const newErrors: Record<string, string> = {};
+    const isEmpty = (v: string) => !v?.trim();
+    const lower = (v: string) => v.trim().toLowerCase();
 
-    const isEmpty = (value: string | undefined | null) => !value?.trim();
-    const allowedTLDs = [
-      "com", "org", "net", "gov", "edu", "info", "biz",
-      "co.th", "ac.th", "or.th", "go.th", "th"
-    ];
+    // Required check
+    requiredFields.forEach(f => {
+      if (isEmpty(form[f as keyof typeof form]))
+        newErrors[f] = `${f[0].toUpperCase() + f.slice(1)} is required`;
+    });
 
-
-    const usernameRegex = /^[a-zA-Z0-9_]+$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-    const websiteRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/;
-
-    // ---- Username (required, format, duplicate) ----
-    if (isEmpty(form.username)) {
-      newErrors.username = "Username is required";
-    } else if (!usernameRegex.test(form.username)) {
-      newErrors.username = "Username can only contain letters, numbers, and underscores";
-    } else if (
-      existingUsers.some(
-        (u) => u.username.trim().toLowerCase() === form.username.trim().toLowerCase()
-      )
-    ) {
-      newErrors.username = "Username already exists";
+    // Username format & duplicate
+    if (!isEmpty(form.username)) {
+      if (!regex.username.test(form.username))
+        newErrors.username = "Only letters, numbers, underscores allowed";
+      else if (existingUsers.some(u => lower(u.username) === lower(form.username)))
+        newErrors.username = "Username already exists";
     }
 
-    // ---- Name (required) ----
-    if (isEmpty(form.name)) {
-      newErrors.name = "Name is required";
+    // Email format & duplicate
+    if (!isEmpty(form.email)) {
+      if (!regex.email.test(form.email))
+        newErrors.email = "Invalid email format";
+      else if (existingUsers.some(u => lower(u.email) === lower(form.email)))
+        newErrors.email = "Email already exists";
     }
 
-    // ---- Email (required, format, duplicate) ----
-    if (isEmpty(form.email)) {
-      newErrors.email = "Email is required";
-    } else if (!emailRegex.test(form.email.trim())) {
-      newErrors.email = "Invalid email format";
-    } else if (
-      existingUsers.some(
-        (u) => u.email.trim().toLowerCase() === form.email.trim().toLowerCase()
-      )
-    ) {
-      newErrors.email = "Email already exists";
-    }
-
-    // ---- Website (optional, format) ----
+    // Website format & TLD check
     if (!isEmpty(form.website)) {
-      if (!websiteRegex.test(form.website.trim())) {
+      if (!regex.website.test(form.website))
         newErrors.website = "Invalid website format";
-      } else {
-        const lowerWebsite = form.website.trim().toLowerCase();
-        const hasValidTLD = allowedTLDs.some(tld => lowerWebsite.endsWith(`.${tld}`));
-        if (!hasValidTLD) {
-          newErrors.website = "Invalid website format";
-        }
-      }
+      else if (!allowedTLDs.some(tld => lower(form.website).endsWith(`.${tld}`)))
+        newErrors.website = "Invalid website format";
     }
+
     return newErrors;
   };
 
   const handleSubmit = () => {
-    const newErrors = validate();
-    setErrors(newErrors);
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length) return;
 
-    if (Object.keys(newErrors).length > 0) return;
-
-    const newUser: Omit<User, "id"> = {
+    onAddUser({
       username: form.username,
       name: form.name,
       email: form.email,
@@ -123,111 +93,63 @@ const AddUserForm = ({ existingUsers, onAddUser }: Props) => {
       },
       phone: form.phone,
       website: form.website,
-      company: {
-        name: form.company,
-      },
-    };
-
-    console.log("Submitting new user:", newUser);
-    onAddUser(newUser);
+      company: { name: form.company }
+    });
   };
+
+  const textFieldProps = (name: string) => ({
+    fullWidth: true,
+    name,
+    value: form[name as keyof typeof form],
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleChange(name, e.target.value),
+    error: !!errors[name],
+    helperText: errors[name],
+    sx: {
+      "& .MuiOutlinedInput-root": {
+        color: "white",
+        "& fieldset": { borderColor: "#666" },
+        "&:hover fieldset": { borderColor: "#888" },
+      }
+    }
+  });
+
+  const fields = [
+    ["Username", "username"],
+    ["Name", "name"],
+    ["Email", "email"],
+    ["Street", "street"],
+    ["Suite", "suite"],
+    ["City", "city"],
+    ["Zip Code", "zipcode"],
+    ["Phone", "phone"],
+    ["Website", "website"],
+    ["Company", "company"]
+  ];
 
   return (
     <Box sx={{ bgcolor: "#121212", minHeight: "100vh", py: 6, px: 2 }}>
-      <Paper
-        sx={{
-          maxWidth: 800,
-          mx: "auto",
-          p: 4,
-          bgcolor: "#1e1e1e",
-          color: "white",
-          borderRadius: 3,
-        }}
-        elevation={3}
-      >
-        <Typography variant="h5" mb={3} textAlign="center">
-          Add New User
-        </Typography>
+      <Paper sx={{ maxWidth: 800, mx: "auto", p: 4, bgcolor: "#1e1e1e", color: "white", borderRadius: 3 }} elevation={3}>
+        <Typography variant="h5" mb={3} textAlign="center">Add New User</Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Typography sx={{ mb: 1 }}>Username:</Typography>
-            <TextField
-              fullWidth
-              name="username"
-              value={form.username}
-              onChange={(e) => handleChange('username', e.target.value)}
-              error={!!errors.username}
-              helperText={errors.username}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  color: "white",
-                  width: "49%",
-                  "& fieldset": { borderColor: "#666" },
-                  "&:hover fieldset": { borderColor: "#888" },
-                },
-              }}
-            />
-          </Grid>
+          {fields.map(([label, name]) => (
+            <React.Fragment key={name}>
+              <Grid item xs={6}>
+                <Typography sx={{ mb: 1 }}>{label}:</Typography>
+                <TextField {...textFieldProps(name)} fullWidth />
+              </Grid>
 
-          {[
-            ["Name", "name"],
-            ["Email", "email"],
-            ["Street", "street"],
-            ["Suite", "suite"],
-            ["City", "city"],
-            ["Zip Code", "zipcode"],
-            ["Phone", "phone"],
-            ["Website", "website"],
-          ].map(([label, name]) => (
-            <Grid item xs={6} key={name}>
-              <Typography sx={{ mb: 1 }}>{label}:</Typography>
-              <TextField
-                fullWidth
-                name={name}
-                value={form[name as keyof typeof form]}
-                onChange={(e) => handleChange(name, e.target.value)}
-                error={!!errors[name]}
-                helperText={errors[name]}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    color: "white",
-                    "& fieldset": { borderColor: "#666" },
-                    "&:hover fieldset": { borderColor: "#888" },
-                  },
-                }}
-              />
-            </Grid>
+              {/* ถ้าเป็น username หรือ company ให้เติมช่องว่างอีก 1 */}
+              {(name === "username" || name === "company") && (
+                <Grid item xs={6} />
+              )}
+            </React.Fragment>
           ))}
-
-          <Grid item xs={12}>
-            <Typography sx={{ mb: 1 }}>Company:</Typography>
-            <TextField
-              fullWidth
-              name="company"
-              value={form.company}
-              onChange={(e) => handleChange('company', e.target.value)}
-              error={!!errors.company}
-              helperText={errors.company}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  color: "white",
-                  width: "49%",
-                  "& fieldset": { borderColor: "#666" },
-                  "&:hover fieldset": { borderColor: "#888" },
-                },
-              }}
-            />
-          </Grid>
         </Grid>
-
+        
         <Box mt={4} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="outlined" color="secondary" onClick={() => navigate("/")}>
-            Cancel
-          </Button>
-          <Button variant="contained" color="primary" onClick={handleSubmit}>
-            Save
-          </Button>
+          <Button variant="outlined" color="secondary" onClick={() => navigate("/")}>Cancel</Button>
+          <Button variant="contained" color="primary" onClick={handleSubmit}>Save</Button>
         </Box>
       </Paper>
     </Box>
