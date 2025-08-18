@@ -47,7 +47,6 @@ const UserListPage = () => {
 
     const handleBeforeUnload = () => {
       localStorage.clear();
-      // หรือ localStorage.removeItem("users");
     };
 
     fetchData();
@@ -81,17 +80,16 @@ const UserListPage = () => {
         mb={4}
         sx={{
           width: "96%",
-          margin: "auto",  // ให้อยู่กึ่งกลางของหน้าจอ
+          margin: "auto", 
         }}
       >
-        
         <SearchBox value={search} handleSearch={setSearch} />
         <Button
           variant="outlined"
           color="primary"
           onClick={() => navigate("/add")}
           sx={{
-            height: "56px", // ให้สูงเท่ากับ SearchBox
+            height: "56px",
             color: "white",
             borderColor: "white",
             "&:hover": { borderColor: "#aaa" },
